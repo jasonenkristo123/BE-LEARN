@@ -3,18 +3,27 @@ import type { ResultSetHeader } from "mysql2";
 
 
 
-export const getAllProducts = async (search?: string) => {
+export const getAllProducts = async (search?: string, minPrice?: string) => {
     let query = 'SELECT * FROM products';
-    let values = [];
+    const values = [];
+    const conditions = [];
 
     if (search) {
-        query += 'WHERE name LIKE ?';
+        conditions.push('name LIKE ?')
         values.push(`%${search}%`);
     }
 
-    let [rows] = await dbPool.execute(query, values);
+    if (minPrice) {
+        conditions.push('price >= ?');
+        values.push(minPrice);
+    }
 
-    return rows
+    if (conditions.length > 0) {
+        query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    const [rows] = await dbPool.execute(query, values);
+    return rows;
 }
 
 export const createProduct = async (name: string, price: number) => {
