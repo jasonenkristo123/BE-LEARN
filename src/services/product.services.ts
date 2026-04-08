@@ -1,56 +1,67 @@
-type Product = {
-    id: number;
-    name: string;
-    price: number;
-}
+import { dbPool } from "../config/db.ts";
+import type { ResultSetHeader } from "mysql2";
 
-let products: Product[] = [
-    { id: 1, name: "Laptop", price: 10 },
-    { id: 2, name: "Mouse", price: 20 },
-    { id: 3, name: "Headphone", price: 30 },
-    { id: 4, name: "Keyboard", price: 40 },
-]
 
-export const getAllProducts = (search?: string): Product[] => {
+
+export const getAllProducts = async (search?: string) => {
+    let query = 'SELECT * FROM products';
+    let values = [];
+
     if (search) {
-        return products.filter(products => products.name.toLowerCase().includes((search as string).toLowerCase()));
+        query += 'WHERE name LIKE ?';
+        values.push(`%${search}%`);
     }
-    return products;
+
+    let [rows] = await dbPool.execute(query, values);
+
+    return rows
 }
 
-export const createProduct = (name: string, price: number): Product => {
-    const newProduct: Product = {
-        id: products.length + 1,
+export const createProduct = async (name: string, price: number) => {
+    const [result] = await dbPool.execute('INSERT INTO products (name, price) VALUES (?, ?)', [name, price]);
+
+    return {
+        id: (result as ResultSetHeader).insertId,
         name,
         price
     }
-
-    products.push(newProduct);
-
-    return newProduct;
 }
 
-export const deleteProductService = (id: number) => {
-    const findIndex = products.findIndex(product => product.id === id);
+export const deleteProductService = async (id: number) => {
+    const [result] = await dbPool.execute('DELETE FROM products WHERE id = ?', [id]);
 
-    if (findIndex === -1) {
-        return false;
+    return (result as ResultSetHeader).affectedRows > 0;
+}
+
+export const updateProductService = async (id: number, name?: string, price?: number) => {
+    const fields = [];
+    const values = [];
+
+    if (name) {
+        fields.push('name = ?');
+        values.push(name);
     }
 
-    products.splice(findIndex, 1);
+    if (price) {
+        fields.push('price = ?');
+        values.push(price);
+    }
 
-    return true;
-}
+    if (fields.length === 0) {
+        return null
+    }
 
-export const updateProductService = (id: number, name?: string, price?: number) => {
-    const product = products.find(product => product.id === id);
+    values.push(id);
 
-    if (!product) {
+    const [result] = await dbPool.execute(`UPDATE products SET ${fields.join(', ')} WHERE id = ?`, values);
+
+    if ((result as ResultSetHeader).affectedRows === 0) {
         return null;
     }
 
-    if (name) product.name = name;
-    if (price !== undefined) product.price = price;
-
-    return product;
+    return {
+        id,
+        name,
+        price
+    }
 }

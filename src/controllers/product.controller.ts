@@ -2,10 +2,11 @@ import type { Request, Response } from "express";
 import { createProduct, deleteProductService, getAllProducts, updateProductService } from "../services/product.services.ts";
 
 
-export const getProducts = (req: Request, res: Response) => {
+export const getProducts = async (req: Request, res: Response) => {
     const { search, page = 1, limit = 10 } = req.query;
 
-    const data = getAllProducts(search as string);
+    const result = await getAllProducts(search as string);
+    const data = Array.isArray(result) ? result : '';
 
     const pageNumber = Number(page);
     const limitNumber = Number(limit);
@@ -26,7 +27,7 @@ export const getProducts = (req: Request, res: Response) => {
 }
 
 
-export const postProduct = (req: Request, res: Response) => {
+export const postProduct = async (req: Request, res: Response) => {
     const { name, price } = req.body;
 
     if (!name || !price) {
@@ -35,7 +36,7 @@ export const postProduct = (req: Request, res: Response) => {
         })
     }
 
-    const product = createProduct(name, price);
+    const product = await createProduct(name, price);
 
     return res.status(201).json({
         message: "Product created successfully",
@@ -43,10 +44,10 @@ export const postProduct = (req: Request, res: Response) => {
     })
 }
 
-export const deleteProduct = (req: Request, res: Response) => {
+export const deleteProduct = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    const success = deleteProductService(id);
+    const success = await deleteProductService(id);
 
     if (!success) {
         return res.status(404).json({
@@ -57,12 +58,12 @@ export const deleteProduct = (req: Request, res: Response) => {
     return res.status(204).send();
 }
 
-export const updateProduct = (req: Request, res: Response) => {
+export const updateProduct = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
     const { name, price } = req.body;
 
-    const updatedProduct = updateProductService(id, name, price);
+    const updatedProduct = await updateProductService(id, name, price);
 
     if (!updatedProduct) {
         return res.status(404).json({
