@@ -3,7 +3,7 @@ import type { ResultSetHeader } from "mysql2";
 
 
 
-export const getAllProducts = async (search?: string, minPrice?: string) => {
+export const getAllProducts = async (search?: string, minPrice?: string, maxPrice?: string) => {
     let query = 'SELECT * FROM products';
     const values = [];
     const conditions = [];
@@ -16,6 +16,11 @@ export const getAllProducts = async (search?: string, minPrice?: string) => {
     if (minPrice) {
         conditions.push('price >= ?');
         values.push(minPrice);
+    }
+
+    if (maxPrice) {
+        conditions.push('price <= ?');
+        values.push(maxPrice);
     }
 
     if (conditions.length > 0) {
