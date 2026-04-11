@@ -2,7 +2,7 @@ import {dbPool} from "../config/db.ts";
 import type {ResultSetHeader} from "mysql2";
 
 
-export const getAllEmployee = async (search?: string, join_year?: string, email?: string) => {
+export const getAllEmployeeServices = async (search?: string, join_year?: string, email?: string) => {
     let query = 'SELECT * FROM employee';
     let conditions = [];
     let values = [];
@@ -30,13 +30,13 @@ export const getAllEmployee = async (search?: string, join_year?: string, email?
     return rows;
 }
 
-export const postEmployee = async (name: string, email: string, join_year: number) => {
+export const postEmployeeServices = async (name: string, email: string, join_year: number) => {
     const [result] = await dbPool.execute('INSERT INTO employee (name, email, join_year) VALUES (?, ?, ?)', [name, email, join_year]);
 
     return (result as ResultSetHeader).affectedRows > 0;
 }
 
-export const putEmployee = async (id: number, name: string, email: string, join_year: number) => {
+export const putEmployeeServices = async (id: number, name: string, email: string, join_year: number) => {
     let fields = [];
     let values = [];
 
@@ -69,7 +69,7 @@ export const putEmployee = async (id: number, name: string, email: string, join_
     return result;
 }
 
-export const deleteEmployee = async (id: number) => {
+export const deleteEmployeeServices = async (id: number) => {
     const [result] = await dbPool.execute('DELETE FROM employee WHERE ID = ?', id);
 
     return (result as ResultSetHeader).affectedRows > 0;

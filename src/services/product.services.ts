@@ -3,7 +3,7 @@ import type { ResultSetHeader } from "mysql2";
 
 
 
-export const getAllProducts = async (search?: string, minPrice?: string, maxPrice?: string) => {
+export const getAllProducts = async (search?: string, minPrice?: string, maxPrice?: string, sort?: string, order?: string) => {
     let query = 'SELECT * FROM products';
     const values = [];
     const conditions = [];
@@ -22,10 +22,18 @@ export const getAllProducts = async (search?: string, minPrice?: string, maxPric
         conditions.push('price <= ?');
         values.push(maxPrice);
     }
-
+    
     if (conditions.length > 0) {
         query += ' WHERE ' + conditions.join(' AND ');
     }
+
+    if (sort) {
+        const sortFields = ['name', 'price'];
+        if (sortFields.includes(sort)) {
+            query += ` ORDER BY ${sort} ${order === 'desc' ? 'DESC' : 'ASC'}`;
+        }
+    }
+
 
     const [rows] = await dbPool.execute(query, values);
     return rows;

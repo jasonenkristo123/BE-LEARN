@@ -3,9 +3,22 @@ import { createProduct, deleteProductService, getAllProducts, updateProductServi
 
 
 export const getProducts = async (req: Request, res: Response) => {
-    const { search, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
+    const {
+        search,
+        minPrice,
+        maxPrice,
+        page = 1,
+        limit = 10,
+        sort,
+        order = 'asc'
+    } = req.query;
 
-    const result = await getAllProducts(search as string, minPrice as string, maxPrice as string);
+    const result = await getAllProducts(
+        search as string,
+        minPrice as string, 
+        maxPrice as string, 
+        sort as string, 
+        order as string);
     const data = Array.isArray(result) ? result : '';
 
     const pageNumber = Number(page);
@@ -29,12 +42,6 @@ export const getProducts = async (req: Request, res: Response) => {
 
 export const postProduct = async (req: Request, res: Response) => {
     const { name, price } = req.body;
-
-    if (!name || !price) {
-        return res.status(400).json({
-            message: "Name and price are required"
-        })
-    }
 
     const product = await createProduct(name, price);
 

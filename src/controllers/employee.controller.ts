@@ -1,10 +1,11 @@
 import type {Request, Response} from "express";
-import {deleteEmployee, getAllEmployee, postEmployee, putEmployee} from "../services/employee.services.ts";
+import { deleteEmployeeServices, getAllEmployeeServices, postEmployeeServices, putEmployeeServices } from "../services/employee.services.ts";
+
 
 export const getAllEmployees = async (req: Request, res: Response) => {
     const { search, page = 1, limit = 10, email, join_year } = req.query;
 
-    const result = await getAllEmployee(search as string, email as string, join_year as string);
+    const result = await getAllEmployeeServices(search as string, email as string, join_year as string);
     const data = Array.isArray(result) ? result : '';
 
     const pageNumber = Number(page);
@@ -21,14 +22,14 @@ export const getAllEmployees = async (req: Request, res: Response) => {
         })
     }
 
-    return {
+    return res.json({
         data: paginatedData,
         meta: {
             'page': pageNumber,
             'limit': limitNumber,
             'total': data.length
         }
-    }
+    })
 }
 
 export const createEmployee = async (req: Request, res: Response) => {
@@ -40,7 +41,7 @@ export const createEmployee = async (req: Request, res: Response) => {
         })
     }
 
-    const result = await postEmployee(name, email, join_year);
+    const result = await postEmployeeServices(name, email, join_year);
 
     return res.status(201).json({
         message: "post employee success!",
@@ -52,7 +53,7 @@ export const updateEmployees = async (req: Request, res: Response) => {
     const { name, email, join_year } = req.body;
     const id = Number(req.params.id);
 
-    const result = await putEmployee(id, name, email, join_year);
+    const result = await putEmployeeServices(id, name, email, join_year);
 
     if (!result) {
         return res.status(404).json({
@@ -68,7 +69,7 @@ export const updateEmployees = async (req: Request, res: Response) => {
 export const deleteEmployees = async (req: Request, res: Response) => {
     const id = Number(req.params.id);
 
-    const result = await deleteEmployee(id);
+    const result = await deleteEmployeeServices(id);
 
     if (!result) {
         return res.status(404).json({
