@@ -1,5 +1,6 @@
 import type {Request, Response} from "express";
 import { deleteEmployeeServices, getAllEmployeeServices, postEmployeeServices, putEmployeeServices } from "../services/employee.services.ts";
+import { AppError } from "../middlewares/errorHandler.ts";
 
 
 export const getAllEmployees = async (req: Request, res: Response) => {
@@ -17,9 +18,7 @@ export const getAllEmployees = async (req: Request, res: Response) => {
     const paginatedData = data.slice(startIndex, endIndex);
 
     if (!data) {
-        return res.status(404).json({
-            message: 'Employee not found'
-        })
+        throw new AppError("No employees found", 404);
     }
 
     return res.json({
@@ -36,9 +35,7 @@ export const createEmployee = async (req: Request, res: Response) => {
     const { name, email, join_year } = req.body;
 
     if (!name || !email || !join_year) {
-        return res.status(404).json({
-            message: 'Employee not found'
-        })
+        throw new AppError("Missing required fields", 400);
     }
 
     const result = await postEmployeeServices(name, email, join_year);
@@ -56,9 +53,7 @@ export const updateEmployees = async (req: Request, res: Response) => {
     const result = await putEmployeeServices(id, name, email, join_year);
 
     if (!result) {
-        return res.status(404).json({
-            message: "Employees not found"
-        })
+        throw new AppError("Employee not found", 404);
     }
 
     res.status(201).json({
@@ -72,9 +67,7 @@ export const deleteEmployees = async (req: Request, res: Response) => {
     const result = await deleteEmployeeServices(id);
 
     if (!result) {
-        return res.status(404).json({
-            message: "delete employee failed"
-        })
+        throw new AppError("Employee not found", 404);
     }
 
     return res.status(204).send();

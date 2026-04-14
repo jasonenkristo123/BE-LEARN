@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { createProduct, deleteProductService, getAllProducts, updateProductService } from "../services/product.services.ts";
+import { AppError, errorHandler } from "../middlewares/errorHandler.ts";
 
 
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
@@ -65,10 +66,10 @@ export const deleteProduct = async (req: Request, res: Response, next: NextFunct
     try {
         const success = await deleteProductService(id);
 
+        
+
         if (!success) {
-            return res.status(404).json({
-                message: "Product not found"
-            })
+            throw new AppError("Product not found", 404);
         }
 
         return res.status(204).send();
@@ -86,9 +87,7 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
         const updatedProduct = await updateProductService(id, name, price);
 
         if (!updatedProduct) {
-            return res.status(404).json({
-                message: "Product not found"
-            })
+            throw new AppError("No fields to update", 400);
         }
 
         return res.status(201).json({
