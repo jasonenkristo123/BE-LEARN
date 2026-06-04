@@ -48,6 +48,8 @@ export const refresh = (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.cookies.refreshToken;
 
+        console.log('Refresh token:', token);
+
         if (!token) {
             throw new AppError('Unauthorized', 401);
         }

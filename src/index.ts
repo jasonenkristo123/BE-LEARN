@@ -4,7 +4,6 @@ import employeeRoutes from "./routes/employee.routes.ts";
 import { loggerMiddleware } from './middlewares/logger.ts';
 import { errorHandler } from './middlewares/errorHandler.ts';
 import cookieParser  from 'cookie-parser';
-import { authMiddleware } from './middlewares/auth.middlewares.ts';
 import routerAuth from './routes/auth.routes.ts';
 
 
